@@ -8,7 +8,9 @@
 package unioffice
 
 import (
+	"fmt"
 	"log"
+	"os"
 )
 
 // Log is used to log content from within the library.  The intent is to use
@@ -20,4 +22,20 @@ var Log = log.Printf
 // silently discarded.
 func DisableLogging() {
 	Log = func(string, ...interface{}) {}
+}
+
+// Enable log to write to file
+func EnableLogWritetoFile(path string) {
+	Log = func(format string, a ...interface{}) {
+		f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		if _, err := f.Write([]byte(fmt.Sprintf(format, a))); err != nil {
+			log.Fatal(err.Error())
+		}
+		if err := f.Close(); err != nil {
+			log.Fatal(err.Error())
+		}
+	}
 }
